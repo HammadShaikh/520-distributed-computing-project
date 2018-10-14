@@ -4,7 +4,8 @@ const express = require('express');
 const hbs = require('hbs');
 //To write to file, load filesystem
 const fs = require('fs');
-
+//Configure the server to run on port provided by heroku or, if doesnt exist, use 3000
+const port = process.env.PORT || 3000;
 //Express app
 var app = express();
 //Set the view engine to hbs
@@ -32,7 +33,7 @@ app.get('/', (req, res) => {
     })
 });
 
-//Listen on port 3000
-app.listen(3000, () => {
-    console.log('Server is listening to port 3000');
+//Listen on a port
+app.listen(port, () => {
+    console.log(`Server is listening to port ${port}`);
 });
