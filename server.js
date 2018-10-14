@@ -1,9 +1,12 @@
+//Load in Path
+const path = require('path');
+//Have relative a path
+const publicPath = path.join(__dirname, '../public');
 //Load in Express
 const express = require('express');
 //Load in hbs
 const hbs = require('hbs');
-//To write to file, load filesystem
-const fs = require('fs');
+
 //Configure the server to run on port provided by heroku or, if doesnt exist, use 3000
 const port = process.env.PORT || 3000;
 //Express app
@@ -11,7 +14,7 @@ var app = express();
 //Set the view engine to hbs
 app.set('view engine', 'hbs');
 //Middleware
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(publicPath));
 
 //Create middleware that logs time when someone connects to server
 app.use((req, res, next) => {
@@ -19,18 +22,11 @@ app.use((req, res, next) => {
     var log = `${now}: ${req.method} ${req.url}`;
     //To inject variables using ${var} wrap the whole thing is back ticks(`) not single(')/double(") quotes
     console.log(log);
-    fs.appendFile('server.log', log + '\n', (err) => {
-        if (err) {
-            console.log('Unable to append to server.log')
-        }
-    });
     next();
 });
 //When the root folder of the server is accessed
 app.get('/', (req, res) => {
-    res.render('test.hbs', {
-        p: 'body text'
-    })
+    res.send('Testing');
 });
 
 //Listen on a port
