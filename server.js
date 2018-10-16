@@ -26,7 +26,9 @@ app.use((req, res, next) => {
 });
 //When the root folder of the server is accessed
 app.get('/', (req, res) => {
-    res.render('test.hbs');
+    res.render('test.hbs', {
+        port: port.toString()
+    });
 });
 
 //Listen on a port
