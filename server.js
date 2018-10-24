@@ -1,37 +1,33 @@
-//Load in Path
-const path = require('path');
-//Have relative a path
-const publicPath = path.join(__dirname, '../public');
-//Load in Express
-const express = require('express');
-//Load in hbs
-const hbs = require('hbs');
+const path = require('path');   //Load in Path
+const publicPath = path.join(__dirname, '/public'); //Have relative a path
+const http = require('http');
+
+const express = require('express'); //Load in Express
+
+//Socket IO library
+let socketIO = new require('socket.io');
 
 //Configure the server to run on port provided by heroku or, if doesnt exist, use 3000
 const port = process.env.PORT || 3000;
-//Express app
-var app = express();
-//Set the view engine to hbs
-app.set('view engine', 'hbs');
-//Middleware
+
+let app = express();    //Express app, web framework
+
+let server = http.createServer(app);
+let io = socketIO(server);
+
 app.use(express.static(publicPath));
 
-//Create middleware that logs time when someone connects to server
-app.use((req, res, next) => {
-    var now = new Date().toString();
-    var log = `${now}: ${req.method} ${req.url}`;
-    //To inject variables using ${var} wrap the whole thing is back ticks(`) not single(')/double(") quotes
-    console.log(log);
-    next();
-});
-//When the root folder of the server is accessed
-app.get('/', (req, res) => {
-    res.render('test.hbs', {
-        port: port.toString()
+//When a client connects
+io.on('connection', (socket) => {
+
+    socket.on('disconnect', () => {
+        let now = new Date().toString();
+        let log = `${now}: User Disconnected`;
+        console.log(log);
     });
 });
 
 //Listen on a port
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Server is listening to port ${port}`);
 });
