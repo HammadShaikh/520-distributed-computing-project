@@ -3,15 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>Test</title>
-</head>
-<body>
-    <form id="form">
-        <input id="text" type="text" placeholder="test text"/>
-        <button onclick="">Submit</button>
-    </form>
-
     <script src="/socket.io/socket.io.js"></script>
     <script src="/js/libs/jquery-3.3.1.min.js"></script>
     <script src="/js/index.js"></script>
+</head>
+<body>
+    <form id="form">
+        <fieldset>
+            <legend><b>Choose A Problem</b></legend>
+            <input id="montecarlo" type="radio" name="problem" value="Monte Carlo"> Monte Carlo: <input id="montecarlo-input" type="number" name="numberOfPoints" placeholder="Number of points" disabled><br>
+
+            <input id="mergesort" type="radio" name="problem" value="Merge Sort"> Merge Sort: <input id="mergesort-input" type="file" name="array" disabled><br>
+            <button id="btn-submit" disabled>Submit</button>
+
+        </fieldset>
+    </form>
+
+
 </body>
 </html>

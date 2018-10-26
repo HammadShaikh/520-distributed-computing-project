@@ -17,10 +17,21 @@ let io = socketIO(server);
 
 app.use(express.static(publicPath));
 
+let numdevices = 0;
 //When a client connects
 io.on('connection', (socket) => {
-
+    numdevices++;
+    let now = new Date().toString();
+    let log = `${now}: User Connected`;
+    console.log(log);
+    io.emit('newConnection', {
+       number: numdevices.toString()
+    });
+    socket.on('newProblem', (problem) => {
+        console.log("New Problem Received: ", problem);
+    });
     socket.on('disconnect', () => {
+        numdevices--;
         let now = new Date().toString();
         let log = `${now}: User Disconnected`;
         console.log(log);
