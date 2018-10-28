@@ -7,13 +7,14 @@
     <script src="./js/index.js"></script>
 </head>
 <body>
-    <form id="form">
+<!-- attr. enctype="multipart/form-data" is needed to process file uploads on the server end-->
+    <form id="form" method="post" action="/problem" enctype="multipart/form-data">
         <fieldset>
             <legend><b>Choose A Problem</b></legend>
             <input id="montecarlo" type="radio" name="problem" value="Monte Carlo"> Monte Carlo: <input id="montecarlo-input" type="number" name="numberOfPoints" placeholder="Number of points" disabled><br>
 
             <input id="mergesort" type="radio" name="problem" value="Merge Sort"> Merge Sort: <input id="mergesort-input" type="file" name="array" disabled><br>
-            <button id="btn-submit" disabled>Submit</button>
+            <input type="submit" id="btn-submit" disabled>
 
         </fieldset>
     </form>

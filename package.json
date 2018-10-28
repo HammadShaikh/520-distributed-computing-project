@@ -13,7 +13,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.18.3",
     "express": "^4.16.0",
+    "express-fileupload": "^1.0.0",
     "hbs": "^4.0.1",
     "socket.io": "^2.1.1",
     "socket.io-file": "^2.0.3",
