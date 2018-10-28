@@ -1,39 +1,56 @@
-$(document).ready(function() {
+$(document).ready(function () {
+    "use strict";
+    window.WebSocket = window.WebSocket || window.MozWebSocket;
 
-    let socket = io();
+    let connection = connectToServer();
 
-    socket.on('connect', function() {
-        console.log("Connected to server.");
-    });
+    connection.onopen = function () {
+        console.log('Connection with server established.');
+        //connection.send("I have connected to you.");
+    };
 
-    socket.on('newConnection', function(data) {
-        //console.log(data);
-        console.log('New device connected to server, total # of devices:', data);
-    });
+    connection.onclose = function () {
+        console.log('Disconnected from server.');
+        
+    };
 
-    socket.on('disconnect', function() {
-        console.log("Disconnected from server.")
-    });
+    connection.onmessage = function (data) {
+        console.log(data.data);
+    };
 
     $('#form').on('submit', function (e) {
         e.preventDefault();
-        let $problem = $("input[name='problem'][type='radio']:checked");
-        if($problem.length > 0) {
-            socket.emit('newProblem', {
-                name: $problem.val(),
-                input: ($problem.val() == "Monte Carlo" ? $('#montecarlo-input').val() : $('#mergesort-input').val())
-            });
-            console.log("Problem Emitted.", $problem.val());
+        let problem = $("input[name='problem'][type='radio']:checked").val();
+        let data, file, fr;
+        if (problem === "Monte Carlo")
+            data = $("#montecarlo-input").val();
+        else {
+           data = $("#mergesort-input");
+           }
+        //console.log(problem + ": " + data);
+        if(problem.length > 0) {
+            let jsonObj = {
+                name: problem.toString(),
+                input: data
+            };
+            let str = JSON.stringify(jsonObj);
+            //console.log(str);
+            connection.send(str);
+            console.log("Problem Emitted.", str);
         }
     });
     $('#montecarlo').on('click', function() {
-        $('#montecarlo-input').removeAttr('disabled'); 
+        $('#montecarlo-input').removeAttr('disabled');
         $('#mergesort-input').attr('disabled', true);
         $('#btn-submit').removeAttr('disabled');
     });
     $('#mergesort').on('click', function() {
-        $('#mergesort-input').removeAttr('disabled'); 
+        $('#mergesort-input').removeAttr('disabled');
         $('#montecarlo-input').attr('disabled', true);
         $('#btn-submit').removeAttr('disabled');
     });
+    
+    function connectToServer() {
+        return new WebSocket('ws://localhost:3000', 'echo-protocol');
+    }
 });
