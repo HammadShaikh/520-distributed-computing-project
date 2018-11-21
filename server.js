@@ -17,10 +17,13 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(fileUpload());
 
+let clients = [];
+
 //MongoDB set up
 const mongoose = require('mongoose');
 
 //mongoose maintains connection with mongodb over time
+/*
 mongoose.connect('mongodb://localhost:27017/task_queue', {useNewUrlParser: true});
 
 let Task = mongoose.model('task_queue', {
@@ -35,6 +38,7 @@ let Task = mongoose.model('task_queue', {
         default: false
     }
 });
+*/
 
 //Once a user submits a task to the server
 app.post('/problem', function (req, res) {
@@ -50,6 +54,7 @@ app.post('/problem', function (req, res) {
         input = req.body.numberOfPoints;
         console.log(input);
     }
+    /*
     let newTask = new Task({
         problemType: prob,
         data: input
@@ -60,6 +65,7 @@ app.post('/problem', function (req, res) {
     }, (err) => {
         console.log('Unable to add task to queue');
     });
+    */
     res.send(`<h1>${prob} Submitted</h1>`);
 });
 
@@ -94,12 +100,14 @@ wsServer.on('request', function(request) {
 
     let connection = request.accept('distributed-protocol', request.origin);
     console.log((new Date()) + ' Connection from ' + request.remoteAddress +' accepted.');
-    //connection.sendUTF('You are connected to the server..');
-    connection.send(JSON.stringify({type: 'Monte Carlo',
-        data: '1231234325'}));
+    connection.send(JSON.stringify({type: 'monte carlo', data: 10000}));
     connection.on('message', function(message) {
         console.log(`Received the following message from ${request.remoteAddress}: ${message.utf8Data}`);
     });
+
+    // function sendMessage(problem, data) {
+    //     connection.send(JSON.stringify({type: problem, data: data}));
+    // }
 
     connection.on('close', function(reasonCode, description) {
         console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
