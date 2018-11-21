@@ -5,6 +5,7 @@ const fileUpload = require('express-fileupload');
 let app = express();
 
 const WebSocketServer = require('websocket').server;
+//const WebSocket = require('ws');
 const http = require('http');
 
 let server = http.createServer(app);
@@ -67,6 +68,7 @@ server.listen(port, function() {
 });
 
 /*WebSocketServer will be used to connect with IOS clients*/
+
 let wsServer = new WebSocketServer({
     httpServer: server,
     // You should not use autoAcceptConnections for production
@@ -92,8 +94,8 @@ wsServer.on('request', function(request) {
 
     let connection = request.accept('distributed-protocol', request.origin);
     console.log((new Date()) + ' Connection from ' + request.remoteAddress +' accepted.');
-    //request.sendUTF('You are connected to the server..');
-    request.send(JSON.stringify('This is a message in a JSON'));
+    //connection.sendUTF('You are connected to the server..');
+    connection.send(JSON.stringify('This is a message in a JSON'));
     connection.on('message', function(message) {
         console.log(`Received the following message from ${request.remoteAddress}: ${message.utf8Data}`);
     });
