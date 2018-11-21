@@ -100,7 +100,7 @@ wsServer.on('request', function(request) {
 
     let connection = request.accept('distributed-protocol', request.origin);
     console.log((new Date()) + ' Connection from ' + request.remoteAddress +' accepted.');
-    connection.send(JSON.stringify({type: 'monte carlo', data: '10000'}));
+    connection.send(JSON.stringify({type: 'monte carlo', data: '10000000'}));
     connection.on('message', function(message) {
         console.log(`Received the following message from ${request.remoteAddress}: ${message.utf8Data}`);
     });
