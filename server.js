@@ -9,7 +9,7 @@ const WebSocketServer = require('websocket').server;
 const http = require('http');
 
 let server = http.createServer(app);
-const port = process.env.PORT || 80;
+const port = process.env.PORT || 3000;
 const bodyParser = require('body-parser');
 
 app.use(express.static(publicPath));
@@ -23,8 +23,8 @@ let clients = [];
 const mongoose = require('mongoose');
 
 //mongoose maintains connection with mongodb over time
-/*
-mongoose.connect('mongodb://localhost:27017/task_queue', {useNewUrlParser: true});
+
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/task_queue', {useNewUrlParser: true});
 
 let Task = mongoose.model('task_queue', {
     problemType: {
@@ -38,7 +38,7 @@ let Task = mongoose.model('task_queue', {
         default: false
     }
 });
-*/
+
 
 //Once a user submits a task to the server
 app.post('/problem', function (req, res) {
@@ -54,7 +54,7 @@ app.post('/problem', function (req, res) {
         input = req.body.numberOfPoints;
         console.log(input);
     }
-    /*
+
     let newTask = new Task({
         problemType: prob,
         data: input
@@ -65,7 +65,7 @@ app.post('/problem', function (req, res) {
     }, (err) => {
         console.log('Unable to add task to queue');
     });
-    */
+
     res.send(`<h1>${prob} Submitted</h1>`);
 });
 
