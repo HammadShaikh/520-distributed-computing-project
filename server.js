@@ -17,7 +17,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(fileUpload());
 
-let clients = [];
+
 
 //MongoDB set up
 const mongoose = require('mongoose');
@@ -36,6 +36,20 @@ let Task = mongoose.model('task_queue', {
     completed: {
         type: Boolean,
         default: false
+    }
+});
+
+let Client = mongoose.model('clients', {
+    ipAddress: {
+        type: String
+    },
+    status: {
+        type: String,
+        default: 'Inactive'
+    },
+    connection: {
+        type: String,
+        default: 'disconnected'
     }
 });
 
@@ -99,8 +113,19 @@ wsServer.on('request', function(request) {
     }
 
     let connection = request.accept('distributed-protocol', request.origin);
+    let newClient = new Client({
+        ipAddress: request.remoteAddress,
+        connection: 'connected'
+    });
+
+
     console.log((new Date()) + ' Connection from ' + request.remoteAddress +' accepted.');
-    connection.send(JSON.stringify({type: 'monte carlo', data: '1000000000'}));
+    newClient.save().then( (document) => {
+        console.log('Client added to client database', document);
+    }, (err) => {
+        console.log('Unable to add client to database');
+    });
+    connection.send(JSON.stringify({type: 'monte carlo', data: '100000'}));
     connection.on('message', function(message) {
         console.log(`Received the following message from ${request.remoteAddress}: ${message.utf8Data}`);
     });
