@@ -22,6 +22,8 @@ app.use(fileUpload());
 //MongoDB set up
 const mongoose = require('mongoose');
 
+let clients = [];
+
 //mongoose maintains connection with mongodb over time
 
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/task_queue', {useNewUrlParser: true});
@@ -50,6 +52,9 @@ let Client = mongoose.model('clients', {
     connection: {
         type: String,
         default: 'disconnected'
+    },
+    listIndex: {
+        type: Number
     }
 });
 
@@ -113,21 +118,30 @@ wsServer.on('request', function(request) {
     }
 
     let connection = request.accept('distributed-protocol', request.origin);
-    let jsonCon = JSON.stringify(connection);
-    let newClient = new Client({
-        ipAddress: request.remoteAddress,
-        status: 'active',
-        connection: jsonCon
+    Client.findOne({ipAddress: request.remoteAddress}).then((client) => {
+        //If client does not exist in database, add it. else do nothing
+       if (client == null) {
+           let index = clients.push(connection) - 1;
+           let newClient = new Client({
+               ipAddress: request.remoteAddress,
+               status: 'active',
+               connection: 'Connected',
+               listIndex: index
+           });
+
+           newClient.save().then( (document) => {
+               console.log('Client added to client database', document);
+           }, (err) => {
+               console.log('Unable to add client to database');
+           });
+       }
     });
+
 
 
     console.log((new Date()) + ' Connection from ' + request.remoteAddress +' accepted.');
-    newClient.save().then( (document) => {
-        console.log('Client added to client database', document);
-    }, (err) => {
-        console.log('Unable to add client to database');
-    });
-    JSON.parse(jsonCon).send(JSON.stringify({type: 'monte carlo', data: '100000'}));
+
+    connection.send(JSON.stringify({type: 'monte carlo', data: '100000'}));
     connection.on('message', function(message) {
         console.log(`Received the following message from ${request.remoteAddress}: ${message.utf8Data}`);
     });
