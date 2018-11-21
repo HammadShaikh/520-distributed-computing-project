@@ -90,11 +90,14 @@ wsServer.on('request', function(request) {
         return;
     }
 
-    let connection = request.accept('echo-protocol', request.origin);
+    let connection = request.accept('distributed-protocol', request.origin);
     console.log((new Date()) + ' Connection from ' + request.remoteAddress +' accepted.');
+    request.sendUTF('You are connected to the server..');
+    request.send(JSON.stringify('This is a message in a JSON'));
     connection.on('message', function(message) {
-        console.log(message);
+        console.log(`Received the following message from ${request.remoteAddress}: ${message.utf8Data}`);
     });
+
     connection.on('close', function(reasonCode, description) {
         console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
     });
