@@ -113,9 +113,11 @@ wsServer.on('request', function(request) {
     }
 
     let connection = request.accept('distributed-protocol', request.origin);
+    let jsonCon = JSON.stringify(connection);
     let newClient = new Client({
         ipAddress: request.remoteAddress,
-        connection: 'connected'
+        status: 'active',
+        connection: jsonCon
     });
 
 
@@ -125,7 +127,7 @@ wsServer.on('request', function(request) {
     }, (err) => {
         console.log('Unable to add client to database');
     });
-    connection.send(JSON.stringify({type: 'monte carlo', data: '100000'}));
+    JSON.parse(jsonCon).send(JSON.stringify({type: 'monte carlo', data: '100000'}));
     connection.on('message', function(message) {
         console.log(`Received the following message from ${request.remoteAddress}: ${message.utf8Data}`);
     });
