@@ -93,7 +93,7 @@ wsServer.on('request', function(request) {
     let connection = request.accept('echo-protocol', request.origin);
     console.log((new Date()) + ' Connection from ' + request.remoteAddress +' accepted.');
     connection.on('message', function(message) {
-
+        console.log(message);
     });
     connection.on('close', function(reasonCode, description) {
         console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
