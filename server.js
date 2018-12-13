@@ -28,7 +28,9 @@ let clients = [];
 
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/task_queue', {useNewUrlParser: true});
 
+//Set up Collection models for task_queue and clients
 let Task = mongoose.model('task_queue', {
+
     problemType: {
         type: String
     },
@@ -78,14 +80,28 @@ app.post('/problem', function (req, res) {
         problemType: prob,
         data: input
     });
-
+    let id;
     newTask.save().then((document) => {
         console.log('Task added to queue', document);
+
+        res.send(`<h1>${document.id}</h1>`);
     }, (err) => {
+        res.send(`<h1> Something Went Wrong /h1>`);
         console.log('Unable to add task to queue');
     });
 
-    res.send(`<h1>${prob} Submitted</h1>`);
+});
+
+app.get('/problem/:probId', function (req, res) {
+    //console.log(req.params.probId);
+
+    Task.findOne({_id: req.params.probId}).then((task) => {
+       if (!task) {
+           return res.send(`<h1>Problem Not Found</h1>`);
+       } else {
+           res.send(`<h1>${task}</h1>`);
+       }
+    });
 });
 
 server.listen(port, function() {
@@ -137,11 +153,9 @@ wsServer.on('request', function(request) {
        }
     });
 
-
-
     console.log((new Date()) + ' Connection from ' + request.remoteAddress +' accepted.');
 
-    connection.send(JSON.stringify({type: 'monte carlo', data: '100000'}));
+    //connection.send(JSON.stringify({type: 'monte carlo', data: '100000'}));
     connection.on('message', function(message) {
         console.log(`Received the following message from ${request.remoteAddress}: ${message.utf8Data}`);
     });
