@@ -158,9 +158,11 @@ wsServer.on('request', function(request) {
     connection.on('message', function(message) {
         console.log(`Received the following message from ${request.remoteAddress}: ${message.utf8Data}`);
         if (message.utf8Data === 'AVAILABLE') {
-            Client.findOneAndUpdate({ipAddress: connection.remoteAddress}, {status: 'available'});
+            console.log(connection.remoteAddress + ' is now available to receive problems');
+            //Client.findOneAndUpdate({ipAddress: connection.remoteAddress}, {status: 'available'});
         } else if (message.utf8Data === 'UNAVAILABLE') {
-            Client.findOneAndUpdate({ipAddress: connection.remoteAddress}, {status: 'unavailable'});
+            console.log(connection.remoteAddress + ' is now unavailable to receive problems');
+            //Client.findOneAndUpdate({ipAddress: connection.remoteAddress}, {status: 'unavailable'});
         }
     });
 
@@ -171,7 +173,7 @@ wsServer.on('request', function(request) {
     connection.on('close', function(reasonCode, description) {
         //When client disconnects, update its info in the DB
         //Client.findOneAndUpdate({ipAddress: connection.remoteAddress}, {status: 'unavailable', connection: 'disconnected'});
-        Client.find({ipAddress: connection.remoteAddress}, (err, doc) => {
+        Client.find({ipAddress: request.remoteAddress}, (err, doc) => {
             doc.status = 'unavailable';
             doc.connection = 'disconnected';
         });
