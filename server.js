@@ -159,10 +159,18 @@ wsServer.on('request', function(request) {
         console.log(`Received the following message from ${request.remoteAddress}: ${message.utf8Data}`);
         if (message.utf8Data === 'AVAILABLE') {
             console.log(connection.remoteAddress + ' is now available to receive problems');
-            //Client.findOneAndUpdate({ipAddress: connection.remoteAddress}, {status: 'available'});
+            Client.update({ipAddress: request.remoteAddress}, {status : 'available'}, (err, raw) => {
+                if (err) {
+
+                }
+            });
         } else if (message.utf8Data === 'UNAVAILABLE') {
             console.log(connection.remoteAddress + ' is now unavailable to receive problems');
-            //Client.findOneAndUpdate({ipAddress: connection.remoteAddress}, {status: 'unavailable'});
+            Client.update({ipAddress: request.remoteAddress}, {status : 'unavailable'}, (err, raw) => {
+                if (err) {
+
+                }
+            });
         }
     });
 
