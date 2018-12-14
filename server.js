@@ -149,6 +149,12 @@ wsServer.on('request', function(request) {
            }, (err) => {
                console.log('Unable to add client to database');
            });
+       } else {
+           Client.update({ipAddress: request.remoteAddress}, {connection : 'connected'}, (err, raw) => {
+               if (err) {
+
+               }
+           });
        }
     });
 
