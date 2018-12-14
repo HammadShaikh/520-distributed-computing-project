@@ -173,9 +173,10 @@ wsServer.on('request', function(request) {
     connection.on('close', function(reasonCode, description) {
         //When client disconnects, update its info in the DB
         //Client.findOneAndUpdate({ipAddress: connection.remoteAddress}, {status: 'unavailable', connection: 'disconnected'});
-        Client.find({ipAddress: request.remoteAddress}, (err, doc) => {
-            doc.status = 'unavailable';
-            doc.connection = 'disconnected';
+        Client.update({ipAddress: request.remoteAddress}, {status : 'unavailable', connection : 'disconnected'}, (err, raw) => {
+            if (err) {
+                return;
+            }
         });
         console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
     });
