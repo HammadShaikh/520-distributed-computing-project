@@ -205,7 +205,7 @@ function delegate() {
                     return console.log("No Clients Available At The Moment.");
                 } else {
                     for (let i = 0; i < clients.length; i++) {
-                        clients[i].sendUTF(tasks[0]);
+                        clients[i].send(tasks[0]);
                     }
                 }
             });
