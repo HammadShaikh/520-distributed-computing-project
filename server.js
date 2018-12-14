@@ -163,7 +163,7 @@ wsServer.on('request', function(request) {
 
     //clients[index].send(JSON.stringify({type: 'monte carlo', data: '100000'}));
     connection.on('message', function(message) {
-        console.log(`Received the following message from ${request.remoteAddress}: ${message.utf8Data}`);
+
         if (message.utf8Data === 'AVAILABLE') {
             console.log(connection.remoteAddress + ' is now available to receive problems');
             Client.update({ipAddress: request.remoteAddress}, {status : 'available'}, (err, raw) => {
@@ -180,6 +180,9 @@ wsServer.on('request', function(request) {
 
                 }
             });
+        } else {
+            console.log(`Received the following message from ${request.remoteAddress}: ${message.utf8Data}`);
+            delegate();
         }
     });
 
@@ -197,7 +200,7 @@ wsServer.on('request', function(request) {
 });
 
 function delegate() {
-    Task.find({}).then((tasks) => {
+    Task.find({completed: false}).then((tasks) => {
         //console.log(tasks);
         if (tasks.length !== 0) {
             Client.find({status: 'available'}).then((clnts) => {
@@ -206,6 +209,7 @@ function delegate() {
                 } else {
                     for (let i = 0; i < clnts.length; i++) {
                         clients[clnts[i].listIndex].send(JSON.stringify(tasks[0]));
+                        tasks[0].completed = true;
                     }
                 }
             });
