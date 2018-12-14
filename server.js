@@ -182,7 +182,6 @@ wsServer.on('request', function(request) {
             });
         } else {
             console.log(`Received the following message from ${request.remoteAddress}: ${message.utf8Data}`);
-            delegate();
         }
     });
 
@@ -200,9 +199,10 @@ wsServer.on('request', function(request) {
 });
 
 function delegate() {
+    console.log('delegating...');
     Task.find({completed: false}).then((tasks) => {
         //console.log(tasks);
-        if (tasks.length !== 0) {
+        if (tasks.length) {
             Client.find({status: 'available'}).then((clnts) => {
                 if (!clnts || clnts.length === 0) {
                     return console.log("No Clients Available At The Moment.");
@@ -215,6 +215,10 @@ function delegate() {
                     }
                 }
             });
+        } else {
+            console.log('No Problems Submitted At The Moment.');
         }
     });
 }
+
+setInterval(delegate, 2000);
