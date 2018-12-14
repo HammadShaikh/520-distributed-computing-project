@@ -200,12 +200,12 @@ function delegate() {
     Task.find({}).then((tasks) => {
         //console.log(tasks);
         if (tasks.length !== 0) {
-            Client.find({status: 'available'}).then((clients) => {
-                if (!clients || clients.length === 0) {
+            Client.find({status: 'available'}).then((clnts) => {
+                if (!clnts || clnts.length === 0) {
                     return console.log("No Clients Available At The Moment.");
                 } else {
-                    for (let i = 0; i < clients.length; i++) {
-                        clients[i].send(JSON.stringify({type: 'monte carlo', data: '100000'}));
+                    for (let i = 0; i < clnts.length; i++) {
+                        clients[clnts[i].listIndex].send(JSON.stringify({type: 'monte carlo', data: '100000'}));
                     }
                 }
             });
