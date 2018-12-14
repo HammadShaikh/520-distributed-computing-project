@@ -171,8 +171,8 @@ wsServer.on('request', function(request) {
 
                 }
             });
-            //delegate();
-            clients[index].send(JSON.stringify({type: 'monte carlo', data: '100000'}));
+            delegate();
+            //clients[index].send(JSON.stringify({type: 'monte carlo', data: '100000'}));
         } else if (message.utf8Data === 'UNAVAILABLE') {
             console.log(connection.remoteAddress + ' is now unavailable to receive problems');
             Client.update({ipAddress: request.remoteAddress}, {status : 'unavailable'}, (err, raw) => {
@@ -205,7 +205,7 @@ function delegate() {
                     return console.log("No Clients Available At The Moment.");
                 } else {
                     for (let i = 0; i < clients.length; i++) {
-                        clients[index].sendUTF(tasks[0]);
+                        clients[i].sendUTF(tasks[0]);
                     }
                 }
             });
