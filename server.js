@@ -159,7 +159,7 @@ wsServer.on('request', function(request) {
     });
 
     console.log((new Date()) + ' Connection from ' + request.remoteAddress +' accepted.');
-    //delegate();
+
 
     //clients[index].send(JSON.stringify({type: 'monte carlo', data: '100000'}));
     connection.on('message', function(message) {
@@ -171,6 +171,7 @@ wsServer.on('request', function(request) {
 
                 }
             });
+            delegate();
         } else if (message.utf8Data === 'UNAVAILABLE') {
             console.log(connection.remoteAddress + ' is now unavailable to receive problems');
             Client.update({ipAddress: request.remoteAddress}, {status : 'unavailable'}, (err, raw) => {
