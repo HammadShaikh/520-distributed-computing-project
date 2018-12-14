@@ -150,7 +150,7 @@ wsServer.on('request', function(request) {
                console.log('Unable to add client to database');
            });
        } else {
-           Client.update({ipAddress: request.remoteAddress}, {connection : 'connected'}, (err, raw) => {
+           Client.updateOne({ipAddress: request.remoteAddress}, {connection : 'connected'}, (err, raw) => {
                if (err) {
 
                }
@@ -166,7 +166,7 @@ wsServer.on('request', function(request) {
 
         if (message.utf8Data === 'AVAILABLE') {
             console.log(connection.remoteAddress + ' is now available to receive problems');
-            Client.update({ipAddress: request.remoteAddress}, {status : 'available'}, (err, raw) => {
+            Client.updateOne({ipAddress: request.remoteAddress}, {status : 'available'}, (err, raw) => {
                 if (err) {
 
                 }
@@ -175,7 +175,7 @@ wsServer.on('request', function(request) {
             //clients[index].send(JSON.stringify({type: 'monte carlo', data: '100000'}));
         } else if (message.utf8Data === 'UNAVAILABLE') {
             console.log(connection.remoteAddress + ' is now unavailable to receive problems');
-            Client.update({ipAddress: request.remoteAddress}, {status : 'unavailable'}, (err, raw) => {
+            Client.updateOne({ipAddress: request.remoteAddress}, {status : 'unavailable'}, (err, raw) => {
                 if (err) {
 
                 }
@@ -188,7 +188,7 @@ wsServer.on('request', function(request) {
     connection.on('close', function(reasonCode, description) {
         //When client disconnects, update its info in the DB
         //Client.findOneAndUpdate({ipAddress: connection.remoteAddress}, {status: 'unavailable', connection: 'disconnected'});
-        Client.update({ipAddress: request.remoteAddress}, {status : 'unavailable', connection : 'disconnected'}, (err, raw) => {
+        Client.updateOne({ipAddress: request.remoteAddress}, {status : 'unavailable', connection : 'disconnected'}, (err, raw) => {
             if (err) {
                 return;
             }
@@ -209,7 +209,7 @@ function delegate() {
                 } else {
                     for (let i = 0; i < clnts.length; i++) {
                         clients[clnts[i].listIndex].send(JSON.stringify(tasks[0]));
-                        Task.update({_id: tasks[0]._id}, {completed: true}, (err, raw) => {
+                        Task.updateOne({_id: tasks[0]._id}, {completed: true}, (err, raw) => {
                            if(err) {}
                         });
                     }
