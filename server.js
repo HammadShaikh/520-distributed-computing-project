@@ -49,7 +49,7 @@ let Client = mongoose.model('clients', {
     },
     status: {
         type: String,
-        default: 'Inactive'
+        default: 'unavailable'
     },
     connection: {
         type: String,
@@ -139,8 +139,8 @@ wsServer.on('request', function(request) {
            let index = clients.push(connection) - 1;
            let newClient = new Client({
                ipAddress: request.remoteAddress,
-               status: 'active',
-               connection: 'Connected',
+               status: 'unavailable',
+               connection: 'connected',
                listIndex: index
            });
 
@@ -157,6 +157,17 @@ wsServer.on('request', function(request) {
     //connection.send(JSON.stringify({type: 'monte carlo', data: '100000'}));
     connection.on('message', function(message) {
         console.log(`Received the following message from ${request.remoteAddress}: ${message.utf8Data}`);
+        if (message.utf8Data === 'AVAILABLE') {
+            Client.findAndModify({
+                query: {ipAddress: connection.remoteAddress},
+                update: {status: 'available'}
+            });
+        } else if (message.utf8Data === 'UNAVAILABLE') {
+            Client.findAndModify({
+                query: {ipAddress: connection.remoteAddress},
+                update: {status: 'unavailable'}
+            });
+        }
     });
 
     // function sendMessage(problem, data) {
@@ -164,13 +175,18 @@ wsServer.on('request', function(request) {
     // }
 
     connection.on('close', function(reasonCode, description) {
+        //When client disconnects, update its info in the DB
+        Client.findAndModify({
+            query: {ipAddress: connection.remoteAddress},
+            update: {status: 'unavailable', connection: 'disconnected'}
+        });
         console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
     });
 
 });
 
 function func(taskId) {
-    Client.find({}).then((client) => {
+    Client.find({status: 'available'}).then((client) => {
         if (!client) {
             return console.log('No client available');
         } else {
