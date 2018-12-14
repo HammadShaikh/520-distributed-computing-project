@@ -23,7 +23,7 @@ app.use(fileUpload());
 const mongoose = require('mongoose');
 
 let clients = [];
-
+let index;
 //mongoose maintains connection with mongodb over time
 
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/task_queue', {useNewUrlParser: true});
@@ -131,7 +131,7 @@ wsServer.on('request', function(request) {
         console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
         return;
     }
-    let index;
+
     let connection = request.accept('distributed-protocol', request.origin);
     Client.findOne({ipAddress: request.remoteAddress}).then((client) => {
         //If client does not exist in database, add it. else do nothing
@@ -161,7 +161,7 @@ wsServer.on('request', function(request) {
     console.log((new Date()) + ' Connection from ' + request.remoteAddress +' accepted.');
     //delegate();
 
-    clients[index].send(JSON.stringify({type: 'monte carlo', data: '100000'}));
+    //clients[index].send(JSON.stringify({type: 'monte carlo', data: '100000'}));
     connection.on('message', function(message) {
         console.log(`Received the following message from ${request.remoteAddress}: ${message.utf8Data}`);
         if (message.utf8Data === 'AVAILABLE') {
@@ -197,16 +197,16 @@ wsServer.on('request', function(request) {
 function delegate() {
     Task.find({}).then((tasks) => {
         //console.log(tasks);
-
+        if (tasks.length !== 0) {
+            Client.find({status: 'available'}).then((clients) => {
+                if (!clients || clients.length === 0) {
+                    return console.log("No Clients Available At The Moment.");
+                } else {
+                    for (let i = 0; i < clients.length; i++) {
+                        clients[index].send(tasks[0]);
+                    }
+                }
+            });
+        }
     });
-    // Client.find({status: 'available'}).then((client) => {
-    //     if (!client) {
-    //         return console.log('No client available');
-    //     } else {
-    //         if (client.length === 0)
-    //             return console.log('No Clients Available');
-    //         console.log(client.length);
-    //
-    //     }
-    // });
 }
