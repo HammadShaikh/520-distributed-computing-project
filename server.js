@@ -83,10 +83,10 @@ app.post('/problem', function (req, res) {
     let id;
     newTask.save().then((document) => {
         console.log('Task added to queue', document);
-        func(document.id);
+        //delegate();
         res.send(`<h1>${document.id}</h1>`);
     }, (err) => {
-        res.send(`<h1> Something Went Wrong /h1>`);
+        res.send(`<h1> Something Went Wrong </h1>`);
         console.log('Unable to add task to queue');
     });
 });
@@ -131,12 +131,12 @@ wsServer.on('request', function(request) {
         console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
         return;
     }
-
+    let index;
     let connection = request.accept('distributed-protocol', request.origin);
     Client.findOne({ipAddress: request.remoteAddress}).then((client) => {
         //If client does not exist in database, add it. else do nothing
        if (client == null) {
-           let index = clients.push(connection) - 1;
+           index = clients.push(connection) - 1;
            let newClient = new Client({
                ipAddress: request.remoteAddress,
                status: 'unavailable',
@@ -159,8 +159,9 @@ wsServer.on('request', function(request) {
     });
 
     console.log((new Date()) + ' Connection from ' + request.remoteAddress +' accepted.');
+    //delegate();
 
-    //connection.send(JSON.stringify({type: 'monte carlo', data: '100000'}));
+    clients[index].send(JSON.stringify({type: 'monte carlo', data: '100000'}));
     connection.on('message', function(message) {
         console.log(`Received the following message from ${request.remoteAddress}: ${message.utf8Data}`);
         if (message.utf8Data === 'AVAILABLE') {
@@ -180,10 +181,6 @@ wsServer.on('request', function(request) {
         }
     });
 
-    // function sendMessage(problem, data) {
-    //     connection.send(JSON.stringify({type: problem, data: data}));
-    // }
-
     connection.on('close', function(reasonCode, description) {
         //When client disconnects, update its info in the DB
         //Client.findOneAndUpdate({ipAddress: connection.remoteAddress}, {status: 'unavailable', connection: 'disconnected'});
@@ -197,15 +194,19 @@ wsServer.on('request', function(request) {
 
 });
 
-function func(taskId) {
-    Client.find({status: 'available'}).then((client) => {
-        if (!client) {
-            return console.log('No client available');
-        } else {
-            if (client.length === 0)
-                return console.log('No Clients Available');
-            console.log(client.length);
+function delegate() {
+    Task.find({}).then((tasks) => {
+        //console.log(tasks);
 
-        }
     });
+    // Client.find({status: 'available'}).then((client) => {
+    //     if (!client) {
+    //         return console.log('No client available');
+    //     } else {
+    //         if (client.length === 0)
+    //             return console.log('No Clients Available');
+    //         console.log(client.length);
+    //
+    //     }
+    // });
 }
