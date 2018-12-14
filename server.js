@@ -205,7 +205,7 @@ function delegate() {
                     return console.log("No Clients Available At The Moment.");
                 } else {
                     for (let i = 0; i < clnts.length; i++) {
-                        clients[clnts[i].listIndex].send(JSON.stringify({type: 'monte carlo', data: '100000'}));
+                        clients[clnts[i].listIndex].send(tasks[0]);
                     }
                 }
             });
