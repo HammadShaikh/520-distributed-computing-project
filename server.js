@@ -209,7 +209,9 @@ function delegate() {
                 } else {
                     for (let i = 0; i < clnts.length; i++) {
                         clients[clnts[i].listIndex].send(JSON.stringify(tasks[0]));
-                        tasks[0].completed = true;
+                        Task.update({_id: tasks[0]._id}, {completed: true}, (err, raw) => {
+                           if(err) {}
+                        });
                     }
                 }
             });
