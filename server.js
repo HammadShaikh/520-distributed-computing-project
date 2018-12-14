@@ -73,7 +73,7 @@ app.post('/problem', function (req, res) {
         console.log(input);
     } else {
         input = req.body.numberOfPoints;
-        console.log(input);
+        //console.log(input);
     }
 
     let newTask = new Task({
@@ -83,13 +83,12 @@ app.post('/problem', function (req, res) {
     let id;
     newTask.save().then((document) => {
         console.log('Task added to queue', document);
-
+        func(document.id);
         res.send(`<h1>${document.id}</h1>`);
     }, (err) => {
         res.send(`<h1> Something Went Wrong /h1>`);
         console.log('Unable to add task to queue');
     });
-
 });
 
 app.get('/problem/:probId', function (req, res) {
@@ -169,3 +168,16 @@ wsServer.on('request', function(request) {
     });
 
 });
+
+function func(taskId) {
+    Client.find({}).then((client) => {
+        if (!client) {
+            return console.log('No client available');
+        } else {
+            if (client.length === 0)
+                return console.log('No Clients Available');
+            console.log(client.length);
+
+        }
+    });
+}
