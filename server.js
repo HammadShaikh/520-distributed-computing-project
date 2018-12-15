@@ -282,7 +282,10 @@ function delegate() {
                             data: String(partition)
                         };
                     } else {
-
+                        json = {
+                          problem: 'Merge Sort',
+                          data: tasks[0].data
+                        };
                     }
 
                     Task.updateOne({_id: tasks[0]._id}, {status: 'in progress', nodes: clnts.length, startTime: new Date().getTime()}, (err, raw) => {
@@ -297,7 +300,12 @@ function delegate() {
                                 }
                             });
                         } else {
+                            console.log(`Sending array to ${clnts[i].ipAddress}`);
+                            Client.updateOne({ipAddress: clnts[i].ipAddress}, {workingOn : 'Merge Sort', status: 'unavailable', probId: tasks[0]._id}, (err, doc) => {
+                                if (err) {
 
+                                }
+                            });
                         }
                         clients[clnts[i].listIndex].send(JSON.stringify(json));
                     }
