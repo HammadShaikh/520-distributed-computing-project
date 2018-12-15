@@ -228,14 +228,15 @@ function delegate() {
                         let points = Number(tasks[0].data);
                         partition = (clnts.length === 1 ? points : Math.floor(points/clnts.length));
                     }
+                    let json = {
+                      problem: 'Monte Carlo',
+                      data: String(partition)
+                    };
                     for (let i = 0; i < clnts.length; i++) {
                         if (tasks[0].problemType === 'Monte Carlo') {
-                            console.log(`Sending ${partition} points to ${clnts[i].ipAddress}`);
+                            console.log(`Sending ${json} points to ${clnts[i].ipAddress}`);
                         }
-                        clients[clnts[i].listIndex].send(JSON.stringify({
-                            problemType: 'Monte Carlo',
-                            data: partition
-                        }));
+                        clients[clnts[i].listIndex].send(JSON.stringify(json));
                     }
                     Task.updateOne({_id: tasks[0]._id}, {status: 'in progress'}, (err, raw) => {
                         if(err) {}
