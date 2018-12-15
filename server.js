@@ -224,7 +224,7 @@ wsServer.on('request', function(request) {
 
                     if (doc.nodes === 0) {
                         let res = (4*doc.pointsGenerated)/doc.data;
-                        Task.updateOne({_id: client.workingOn}, {mcSolution: res, status: 'complete'}, (err, doc) => {
+                        Task.updateOne({_id: client.probId}, {mcSolution: res, status: 'complete'}, (err, doc) => {
 
                         });
                     }
