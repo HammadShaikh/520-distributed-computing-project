@@ -155,7 +155,7 @@ wsServer.on('request', function(request) {
            index = clients.push(connection) - 1;
            let newClient = new Client({
                ipAddress: request.remoteAddress,
-               status: 'unavailable',
+               status: 'available',
                connection: 'connected',
                listIndex: index
            });
