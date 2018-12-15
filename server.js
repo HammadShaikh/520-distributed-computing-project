@@ -209,12 +209,13 @@ wsServer.on('request', function(request) {
             Client.findOne({ipAddress: request.remoteAddress}).then((client) => {
                 Task.findOneAndUpdate({_id: client.workingOn}, {$inc: {nodes: -1, pointsGenerated: Number(message.utf8Data)} }, {new: true},(err, doc) => {
                     if(err) {return;}
-                    if (doc.nodes === 0) {
-                        let res = (4*doc.pointsGenerated)/doc.data;
-                        Task.updateOne({_id: client.workingOn}, {mcSolution: res}, (err, doc) => {
-
-                        });
-                    }
+                    console.log('after updating..\n', doc);
+                    // if (doc.nodes === 0) {
+                    //     let res = (4*doc.pointsGenerated)/doc.data;
+                    //     Task.updateOne({_id: client.workingOn}, {mcSolution: res}, (err, doc) => {
+                    //
+                    //     });
+                    // }
                 });
             });
 
