@@ -207,8 +207,9 @@ wsServer.on('request', function(request) {
 
             console.log(`Received the following message from ${request.remoteAddress}: ${message.utf8Data}`);
             Client.findOne({ipAddress: request.remoteAddress}).then((client) => {
-                Task.findOneAndUpdate({_id: client.workingOn}, {$inc: {nodes: -1, pointsGenerated: Number(message.utf8Data)} }, {new: true},(err, doc) => {
+                Task.updateOne({_id: client.workingOn}, {$inc: {nodes: -1, pointsGenerated: Number(message.utf8Data)} }, (err, doc) => {
                     if(err) {return;}
+                    //Task.findOne({_id: client.workingOn})
                     console.log('after updating..\n', doc);
                     // if (doc.nodes === 0) {
                     //     let res = (4*doc.pointsGenerated)/doc.data;
@@ -264,7 +265,7 @@ function delegate() {
                     for (let i = 0; i < clnts.length; i++) {
                         if (tasks[0].problemType === 'Monte Carlo') {
                             console.log(`Sending ${partition} points to ${clnts[i].ipAddress}`);
-                            Client.updateOne({ipAddress: clients[clnts[i].listIndex].ipAddress}, {workingOn : tasks[0]._id, status: 'unavailable'}, (err, raw) => {
+                            Client.updateOne({ipAddress: clients[clnts[i].listIndex].ipAddress}, {workingOn : String(tasks[0]._id), status: 'unavailable'}, (err, raw) => {
                                 if (err) {
 
                                 }
