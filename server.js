@@ -207,8 +207,8 @@ wsServer.on('request', function(request) {
 
             console.log(`Received the following message from ${request.remoteAddress}: ${message.utf8Data}`);
             Client.findOne({ipAddress: request.remoteAddress}).then((client) => {
-                Task.updateOne({_id: client.workingOn}, {$inc: {nodes: -1, pointsGenerated: Number(message.utf8Data)} }, (err, doc) => {
-                    if(err) {return;}
+                Task.updateOne({_id: client.workingOn}, {$inc: {nodes: -1}}, (err, doc) => {
+                    if(err) {console.log('error updating');}
                     //Task.findOne({_id: client.workingOn})
                     console.log('after updating..\n', doc);
                     // if (doc.nodes === 0) {
