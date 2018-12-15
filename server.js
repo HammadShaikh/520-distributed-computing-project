@@ -276,7 +276,7 @@ function delegate() {
                     for (let i = 0; i < clnts.length; i++) {
                         if (tasks[0].problemType === 'Monte Carlo') {
                             console.log(`Sending ${partition} points to ${clnts[i].ipAddress}`);
-                            Client.updateOne({ipAddress: clients[clnts[i].listIndex].ipAddress}, {workingOn : 'Monte Carlo', status: 'unavailable', probId: tasks[0]._id}, (err, raw) => {
+                            Client.updateOne({ipAddress: clnts[i].ipAddress}, {workingOn : 'Monte Carlo', status: 'unavailable', probId: tasks[0]._id}, (err, doc) => {
                                 if (err) {
 
                                 }
