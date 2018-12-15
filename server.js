@@ -212,15 +212,23 @@ wsServer.on('request', function(request) {
 
 function delegate() {
     console.log('delegating...');
-    Task.find({completed: false}).then((tasks) => {
+    Task.find({status: 'incomplete'}).then((tasks) => {
         //console.log(tasks);
         if (tasks.length) {
             Client.find({status: 'available'}).then((clnts) => {
                 if (!clnts || clnts.length === 0) {
                     return console.log("No Clients Available At The Moment.");
                 } else {
+                    let partition;
+                    if (tasks[0].problemType === 'Monte Carlo') {
+                        let points = Number(tasks[0].data);
+                        partition = (clnts.length === 1 ? points : points / clnts.length);
+                    }
                     for (let i = 0; i < clnts.length; i++) {
-                        clients[clnts[i].listIndex].send(JSON.stringify(tasks[0]));
+                        if (tasks[0].problemType === 'Monte Carlo') {
+                            console.log(`Sending ${partition} points to ${clnts[i].ipAddress}`);
+                        }
+                        clients[clnts[i].listIndex].send(JSON.stringify({problemType: tasks[0].problemType, data: partition.toString()}));
                     }
                     Task.updateOne({_id: tasks[0]._id}, {status: 'in progress'}, (err, raw) => {
                         if(err) {}
