@@ -133,6 +133,9 @@ app.get('/problem/:probId', function (req, res) {
        if (!task) {
            return res.send(`<h1>Problem Not Found</h1>`);
        } else {
+           if (task.status === 'complete') {
+               res.send(`<h1>Monte Carlo Solution: ${task.mcSolution}</h1><h4>Time Allotted: ${task.endTime - task.startTime} milliseconds</h4>`);
+           }
            res.send(`<h1>${task}</h1>`);
        }
     });
@@ -218,18 +221,23 @@ wsServer.on('request', function(request) {
 
             console.log(`Received the following message from ${request.remoteAddress}: ${message.utf8Data}`);
             Client.findOne({ipAddress: request.remoteAddress}).then((client) => {
-                Task.findOneAndUpdate({_id: client.probId}, {$inc: {nodes: -1, pointsGenerated: Number(message.utf8Data)}}, {new: true}, (err, doc) => {
-                    if(err) {return console.log('error updating', err);}
-                    //Task.findOne({_id: client.workingOn})
+                if (client.workingOn === 'Monte Carlo') {
+                    Task.findOneAndUpdate({_id: client.probId}, {$inc: {nodes: -1, pointsGenerated: Number(message.utf8Data)}}, {new: true}, (err, doc) => {
+                        if(err) {return console.log('error updating', err);}
+                        //Task.findOne({_id: client.workingOn})
 
-                    if (doc.nodes === 0) {
-                        let res = (4*doc.pointsGenerated)/doc.data;
-                        Task.updateOne({_id: client.probId}, {mcSolution: res, status: 'complete'}, (err, doc) => {
+                        if (doc.nodes === 0) {
+                            let res = (4*doc.pointsGenerated)/doc.data;
+                            Task.updateOne({_id: client.probId}, {mcSolution: res, status: 'complete', endTime: new Date().getTime()}, (err, doc) => {
 
-                        });
-                    }
-                    console.log('after updating..\n', doc);
-                });
+                            });
+                        }
+                        console.log('after updating..\n', doc);
+                    });
+                } else {
+
+                }
+
             });
 
             Client.updateOne({ipAddress: request.remoteAddress}, {status : 'available'}, (err, raw) => {
@@ -263,15 +271,20 @@ function delegate() {
                     return console.log("No Clients Available At The Moment.");
                 } else {
                     let partition;
+                    let json;
+
                     if (tasks[0].problemType === 'Monte Carlo') {
                         let points = Number(tasks[0].data);
                         partition = (clnts.length === 1 ? points : Math.floor(points/clnts.length));
+                        json = {
+                            problem: 'Monte Carlo',
+                            data: String(partition)
+                        };
+                    } else {
+
                     }
-                    let json = {
-                      problem: 'Monte Carlo',
-                      data: String(partition)
-                    };
-                    Task.updateOne({_id: tasks[0]._id}, {status: 'in progress', nodes: clnts.length}, (err, raw) => {
+
+                    Task.updateOne({_id: tasks[0]._id}, {status: 'in progress', nodes: clnts.length, startTime: new Date().getTime()}, (err, raw) => {
                         if(err) {}
                     });
                     for (let i = 0; i < clnts.length; i++) {
@@ -282,6 +295,8 @@ function delegate() {
 
                                 }
                             });
+                        } else {
+
                         }
                         clients[clnts[i].listIndex].send(JSON.stringify(json));
                     }
