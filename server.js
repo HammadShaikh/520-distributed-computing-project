@@ -48,6 +48,10 @@ let Task = mongoose.model('task_queue', {
     endTime: {
         type: Number,
         default: null
+    },
+    pointsGenerated: {
+        type: Number,
+        default: null
     }
 });
 
@@ -151,7 +155,7 @@ wsServer.on('request', function(request) {
            index = clients.push(connection) - 1;
            let newClient = new Client({
                ipAddress: request.remoteAddress,
-               status: 'available',
+               status: 'unavailable',
                connection: 'connected',
                listIndex: index
            });
