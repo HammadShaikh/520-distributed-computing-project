@@ -51,7 +51,7 @@ let Task = mongoose.model('task_queue', {
     },
     pointsGenerated: {
         type: Number,
-        default: null
+        default: 0
     },
     nodes: {
         type: Number,
@@ -81,6 +81,10 @@ let Client = mongoose.model('clients', {
     workingOn: {
         type: String,
         default: null
+    },
+    probId: {
+        type: String,
+        default: null
     }
 });
 
@@ -104,15 +108,22 @@ app.post('/problem', function (req, res) {
         problemType: prob,
         data: input
     });
-
+    let id;
     newTask.save().then((document) => {
         console.log('Task added to queue', document);
-        //delegate();
+
+        id = String(document.id);
         res.send(`<h1>${document.id}</h1>`);
+        //console.log(document.id);
+        // Task.findOneAndUpdate({_id: id}, {$inc: {pointsGenerated: 10}}, (err, doc) => {
+        //
+        // });
+
     }, (err) => {
         res.send(`<h1> Something Went Wrong </h1>`);
         console.log('Unable to add task to queue');
     });
+
 });
 
 app.get('/problem/:probId', function (req, res) {
@@ -265,7 +276,7 @@ function delegate() {
                     for (let i = 0; i < clnts.length; i++) {
                         if (tasks[0].problemType === 'Monte Carlo') {
                             console.log(`Sending ${partition} points to ${clnts[i].ipAddress}`);
-                            Client.updateOne({ipAddress: clients[clnts[i].listIndex].ipAddress}, {workingOn : String(tasks[0]._id), status: 'unavailable'}, (err, raw) => {
+                            Client.updateOne({ipAddress: clients[clnts[i].listIndex].ipAddress}, {workingOn : 'Monte Carlo', status: 'unavailable', probId: tasks[0]._id}, (err, raw) => {
                                 if (err) {
 
                                 }
