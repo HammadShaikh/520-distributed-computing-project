@@ -52,6 +52,14 @@ let Task = mongoose.model('task_queue', {
     pointsGenerated: {
         type: Number,
         default: null
+    },
+    nodes: {
+        type: Number,
+        default: 0
+    },
+    mcSolution: {
+        type: Number,
+        default: null
     }
 });
 
@@ -198,6 +206,23 @@ wsServer.on('request', function(request) {
         } else {
 
             console.log(`Received the following message from ${request.remoteAddress}: ${message.utf8Data}`);
+            Client.findOne({ipAddress: request.remoteAddress}).then((client) => {
+                Task.findOneAndUpdate({_id: client.workingOn}, {$inc: {nodes: -1, pointsGenerated: Number(message.utf8Data)} }, {new: true},(err, doc) => {
+                    if(err) {return;}
+                    if (doc.nodes === 0) {
+                        let res = (4*doc.pointsGenerated)/doc.data;
+                        Task.updateOne({_id: client.workingOn}, {mcSolution: res}, (err, doc) => {
+
+                        });
+                    }
+                });
+            });
+
+            Client.updateOne({ipAddress: request.remoteAddress}, {status : 'available'}, (err, raw) => {
+                if (err) {
+
+                }
+            });
         }
     });
 
@@ -232,15 +257,21 @@ function delegate() {
                       problem: 'Monte Carlo',
                       data: String(partition)
                     };
+                    Task.updateOne({_id: tasks[0]._id}, {status: 'in progress', nodes: clnts.length}, (err, raw) => {
+                        if(err) {}
+                    });
                     for (let i = 0; i < clnts.length; i++) {
                         if (tasks[0].problemType === 'Monte Carlo') {
-                            console.log(`Sending ${json} points to ${clnts[i].ipAddress}`);
+                            console.log(`Sending ${partition} points to ${clnts[i].ipAddress}`);
+                            Client.updateOne({ipAddress: clients[clnts[i].listIndex].ipAddress}, {workingOn : tasks[0]._id, status: 'unavailable'}, (err, raw) => {
+                                if (err) {
+
+                                }
+                            });
                         }
                         clients[clnts[i].listIndex].send(JSON.stringify(json));
                     }
-                    Task.updateOne({_id: tasks[0]._id}, {status: 'in progress'}, (err, raw) => {
-                        if(err) {}
-                    });
+
                 }
             });
         } else {
