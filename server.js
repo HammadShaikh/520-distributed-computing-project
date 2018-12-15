@@ -37,10 +37,6 @@ let Task = mongoose.model('task_queue', {
     data: {
         type: String
     },
-    completed: {
-        type: Boolean,
-        default: false
-    },
     status: {   //incomplete, in progress, complete
         type: String,
         default: 'incomplete'
@@ -96,7 +92,7 @@ app.post('/problem', function (req, res) {
         problemType: prob,
         data: input
     });
-    let id;
+
     newTask.save().then((document) => {
         console.log('Task added to queue', document);
         //delegate();
@@ -155,7 +151,7 @@ wsServer.on('request', function(request) {
            index = clients.push(connection) - 1;
            let newClient = new Client({
                ipAddress: request.remoteAddress,
-               status: 'unavailable',
+               status: 'available',
                connection: 'connected',
                listIndex: index
            });
@@ -187,8 +183,7 @@ wsServer.on('request', function(request) {
 
                 }
             });
-            delegate();
-            //clients[index].send(JSON.stringify({type: 'monte carlo', data: '100000'}));
+
         } else if (message.utf8Data === 'UNAVAILABLE') {
             console.log(connection.remoteAddress + ' is now unavailable to receive problems');
             Client.updateOne({ipAddress: request.remoteAddress}, {status : 'unavailable'}, (err, raw) => {
