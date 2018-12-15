@@ -113,7 +113,7 @@ app.post('/problem', function (req, res) {
         console.log('Task added to queue', document);
 
         id = String(document.id);
-        res.send(`<h1>${document.id}</h1>`);
+        res.send(`<h1>Problem Submitted, <a href="https://safe-castle-90261.herokuapp.com/problem/${document.id}">Click Here</a> To Check Progress.</h1>`);
         //console.log(document.id);
         // Task.findOneAndUpdate({_id: id}, {$inc: {pointsGenerated: 10}}, (err, doc) => {
         //
@@ -136,7 +136,7 @@ app.get('/problem/:probId', function (req, res) {
            if (task.status === 'complete') {
                res.send(`<h1>Monte Carlo Solution: ${task.mcSolution}</h1><h4>Time Allotted: ${task.endTime - task.startTime} milliseconds</h4>`);
            }
-           res.send(`<h1>${task}</h1>`);
+           //res.send(`<h1>${task}</h1>`);
        }
     });
 });
