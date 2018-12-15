@@ -40,6 +40,18 @@ let Task = mongoose.model('task_queue', {
     completed: {
         type: Boolean,
         default: false
+    },
+    status: {   //incomplete, in progress, complete
+        type: String,
+        default: 'incomplete'
+    },
+    startTime: {
+        type: Number,
+        default: null
+    },
+    endTime: {
+        type: Number,
+        default: null
     }
 });
 
@@ -57,6 +69,10 @@ let Client = mongoose.model('clients', {
     },
     listIndex: {
         type: Number
+    },
+    workingOn: {
+        type: String,
+        default: null
     }
 });
 
@@ -181,6 +197,7 @@ wsServer.on('request', function(request) {
                 }
             });
         } else {
+
             console.log(`Received the following message from ${request.remoteAddress}: ${message.utf8Data}`);
         }
     });
@@ -209,10 +226,10 @@ function delegate() {
                 } else {
                     for (let i = 0; i < clnts.length; i++) {
                         clients[clnts[i].listIndex].send(JSON.stringify(tasks[0]));
-                        Task.updateOne({_id: tasks[0]._id}, {completed: true}, (err, raw) => {
-                           if(err) {}
-                        });
                     }
+                    Task.updateOne({_id: tasks[0]._id}, {status: 'in progress'}, (err, raw) => {
+                        if(err) {}
+                    });
                 }
             });
         } else {
@@ -221,4 +238,4 @@ function delegate() {
     });
 }
 
-setInterval(delegate, 2000);
+setInterval(delegate, 5000);
