@@ -172,9 +172,10 @@ wsServer.on('request', function(request) {
 
     let connection = request.accept('distributed-protocol', request.origin);
     Client.findOne({ipAddress: request.remoteAddress}).then((client) => {
+        index = clients.push(connection) - 1;
         //If client does not exist in database, add it. else do nothing
        if (client == null) {
-           index = clients.push(connection) - 1;
+
            let newClient = new Client({
                ipAddress: request.remoteAddress,
                status: 'unavailable',
@@ -188,7 +189,7 @@ wsServer.on('request', function(request) {
                console.log('Unable to add client to database');
            });
        } else {
-           Client.updateOne({ipAddress: request.remoteAddress}, {connection : 'connected'}, (err, raw) => {
+           Client.updateOne({ipAddress: request.remoteAddress}, {connection : 'connected', listIndex: index}, (err, raw) => {
                if (err) {
 
                }
