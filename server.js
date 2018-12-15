@@ -232,7 +232,10 @@ function delegate() {
                         if (tasks[0].problemType === 'Monte Carlo') {
                             console.log(`Sending ${partition} points to ${clnts[i].ipAddress}`);
                         }
-                        clients[clnts[i].listIndex].send(JSON.stringify({problemType: tasks[0].problemType, data: partition.toString()}));
+                        clients[clnts[i].listIndex].send(JSON.stringify({
+                            problemType: 'Monte Carlo',
+                            data: partition
+                        }));
                     }
                     Task.updateOne({_id: tasks[0]._id}, {status: 'in progress'}, (err, raw) => {
                         if(err) {}
