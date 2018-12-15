@@ -155,7 +155,7 @@ wsServer.on('request', function(request) {
            index = clients.push(connection) - 1;
            let newClient = new Client({
                ipAddress: request.remoteAddress,
-               status: 'available',
+               status: 'unavailable',
                connection: 'connected',
                listIndex: index
            });
@@ -226,7 +226,7 @@ function delegate() {
                     let partition;
                     if (tasks[0].problemType === 'Monte Carlo') {
                         let points = Number(tasks[0].data);
-                        partition = (clnts.length === 1 ? points : points / clnts.length);
+                        partition = (clnts.length === 1 ? points : Math.floor(points/clnts.length));
                     }
                     for (let i = 0; i < clnts.length; i++) {
                         if (tasks[0].problemType === 'Monte Carlo') {
@@ -234,7 +234,7 @@ function delegate() {
                         }
                         clients[clnts[i].listIndex].send(JSON.stringify({
                             problemType: 'Monte Carlo',
-                            data: '500000'
+                            data: partition
                         }));
                     }
                     Task.updateOne({_id: tasks[0]._id}, {status: 'in progress'}, (err, raw) => {
