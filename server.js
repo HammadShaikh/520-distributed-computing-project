@@ -37,6 +37,9 @@ let Task = mongoose.model('task_queue', {
     data: {
         type: String
     },
+    dataSize: {
+        type: Number
+    },
     status: {   //incomplete, in progress, complete
         type: String,
         default: 'incomplete'
@@ -94,30 +97,29 @@ app.post('/problem', function (req, res) {
     //Parse the task to get the problem type and input data
     let prob = req.body.problem;
     let input;
+    let size;
+
     if (prob === "Merge Sort") {
         let file = req.files.array;
         input = file.data.toString();
-        console.log(`problem: ${prob}`);
-        console.log(input);
+        size = input.split(",").map((val) => {return Number(val);}).length;
     } else {
-        input = req.body.numberOfPoints;
-        //console.log(input);
+        input = req.body.numberOfPoints.toString();
+        console.log(input);
     }
-
+    //console.log('creating task');
     let newTask = new Task({
         problemType: prob,
-        data: input
+        data: input,
+        dataSize: (prob === 'Merge Sort' ? size : null)    //If merge sort, then store size of array, otherwise its useless
     });
-    let id;
+    //console.log('saving task');
     newTask.save().then((document) => {
         console.log('Task added to queue', document);
 
-        id = String(document.id);
+
         res.send(`<h1>Problem Submitted, <a href="https://safe-castle-90261.herokuapp.com/problem/${document.id}">Click Here</a> To Check Progress.</h1>`);
-        //console.log(document.id);
-        // Task.findOneAndUpdate({_id: id}, {$inc: {pointsGenerated: 10}}, (err, doc) => {
-        //
-        // });
+
 
     }, (err) => {
         res.send(`<h1> Something Went Wrong </h1>`);
@@ -135,8 +137,12 @@ app.get('/problem/:probId', function (req, res) {
        } else {
            if (task.status === 'complete') {
                res.send(`<h1>Monte Carlo Solution: ${task.mcSolution}</h1><h4>Time Allotted: ${task.endTime - task.startTime} milliseconds</h4>`);
+           } else if (task.status === 'in progress') {
+               res.send(`<h1>Waiting on ${task.nodes} node(s) to return results. Please refresh the page in a moment.</h1>`);
+           } else {
+               res.send(`<h1>Problem Still In Queue, Waiting For Clients to become Available.</h1>`);
            }
-           //res.send(`<h1>${task}</h1>`);
+
        }
     });
 });
@@ -273,7 +279,7 @@ function delegate() {
                 } else {
                     let partition;
                     let json;
-
+                    let arrayOfPartitions = [[], []]; //Used to store partitions of merge sort, size depends on # of clients available
                     if (tasks[0].problemType === 'Monte Carlo') {
                         let points = Number(tasks[0].data);
                         partition = (clnts.length === 1 ? points : Math.floor(points/clnts.length));
@@ -281,7 +287,21 @@ function delegate() {
                             problem: 'Monte Carlo',
                             data: String(partition)
                         };
+                        //Merge Sort
                     } else {
+                        let arr = tasks[0].data.split(",").map((val) => {return Number(val);});
+                        if (tasks[0].size % 2 == 0) {
+                            let partitionSize = tasks[0].size/clnts.length;
+                            let startIndex = 0;
+                            let endIndex = partitionSize;
+                            for (let i = 0; i < clnts.length; i++) {
+                                arrayOfPartitions[i] = arr.slice(startIndex, endIndex);
+                                startIndex = endIndex;
+                                endIndex += partitionSize;
+                            }
+                        } else {
+
+                        }
                         json = {
                           problem: 'Merge Sort',
                           data: tasks[0].data
@@ -300,12 +320,13 @@ function delegate() {
                                 }
                             });
                         } else {
-                            console.log(`Sending array to ${clnts[i].ipAddress}`);
+                            console.log(`Sending array partition to ${clnts[i].ipAddress}`);
                             Client.updateOne({ipAddress: clnts[i].ipAddress}, {workingOn : 'Merge Sort', status: 'unavailable', probId: tasks[0]._id}, (err, doc) => {
                                 if (err) {
 
                                 }
                             });
+                            json.data = arrayOfPartitions[i].toString();
                         }
                         clients[clnts[i].listIndex].send(JSON.stringify(json));
                     }
