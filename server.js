@@ -248,7 +248,7 @@ wsServer.on('request', function(request) {
                         if (doc.nodes === 0) {
                             let finalArray = doc.msSolution;
                             console.log('final sorted array: ', finalArray);
-                            Task.updateOne({_id: client.probId}, {msSolution: finalArray, status: 'completed', endTime: new Date().getTime()}, (err, doc) => {});
+                            Task.updateOne({_id: doc._id}, {msSolution: finalArray, status: 'complete', endTime: new Date().getTime()}, (err, doc) => {});
                         }
                     });
                 }
