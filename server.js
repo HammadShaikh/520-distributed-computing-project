@@ -292,17 +292,32 @@ function delegate() {
                     } else {
                         let arr = tasks[0].data.split(",").map((val) => {return Number(val);});
                         console.log('partitioning ', arr);
-                        if (tasks[0].dataSize % 2 === 0) {
-                            let partitionSize = tasks[0].dataSize/clnts.length;
-                            let startIndex = 0;
-                            let endIndex = partitionSize;
-                            for (let i = 0; i < clnts.length; i++) {
-                                arrayOfPartitions[i] = arr.slice(startIndex, endIndex);
-                                startIndex = endIndex;
-                                endIndex += partitionSize;
-                                console.log('partition: ', arr.slice(startIndex, endIndex));
-                            }
+                        let partitionToEachClient = [];
+
+                        //Uniformly distribute array to each client
+                        for (let i = 0; i < clnts.length; i++)
+                            partitionToEachClient[i] = tasks[0].dataSize/clnts.length;
+                        for (let j = 0; j < tasks[0].dataSize%clnts.length; j++)
+                            partitionToEachClient[j]++;
+
+                        let startIndex = 0;
+                        let endIndex = 0
+                        for (let k = 0; k < clnts.length; k++) {
+                            endIndex += partitionToEachClient[k];
+                            arrayOfPartitions[k] = arr.slice(startIndex, endIndex);
+                            startIndex = endIndex;
                         }
+                        // if (tasks[0].dataSize % 2 === 0) {
+                        //     let partitionSize = tasks[0].dataSize/clnts.length;
+                        //     let startIndex = 0;
+                        //     let endIndex = partitionSize;
+                        //     for (let i = 0; i < clnts.length; i++) {
+                        //         arrayOfPartitions[i] = arr.slice(startIndex, endIndex);
+                        //         startIndex = endIndex;
+                        //         endIndex += partitionSize;
+                        //         console.log('partition: ', arr.slice(startIndex, endIndex));
+                        //     }
+                        // }
                     }
 
                     Task.updateOne({_id: tasks[0]._id}, {status: 'in progress', nodes: clnts.length, startTime: new Date().getTime()}, (err, raw) => {
