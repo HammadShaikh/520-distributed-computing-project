@@ -242,11 +242,12 @@ wsServer.on('request', function(request) {
                     });
                 } else {
                     let sortedArray = message.utf8Data.split(",").map((val) => {return Number(val);});
-                    Task.findOneAndUpdate({_id: client.probId}, {$inc: {nodes: -1}, $concatArrays: {msSolution: sortedArray}}, {new: true}, (err, doc) => {
+                    Task.findOneAndUpdate({_id: client.probId}, {$inc: {nodes: -1}, $push: {msSolution: sortedArray}}, {new: true}, (err, doc) => {
                         if(err) {return console.log('error updating', err);}
 
                         if (doc.nodes === 0) {
-
+                            let finalArray = doc.msSolution.sort();
+                            console.log('final sorted array: ', finalArray);
                         }
                     });
                 }
