@@ -323,12 +323,12 @@ function delegate() {
                             });
                             json = {
                                 problem: "Merge Sort",
-                                data: arrayOfPartitions[i].toString()
+                                data: arrayOfPartitions[i]
                             };
 
                         }
                         clients[clnts[i].listIndex].send(JSON.stringify(json));
-                        console.log('sending ', JSON.stringify(json));
+                        console.log('to string ', arrayOfPartitions[i].toString());
                     }
 
                 }
