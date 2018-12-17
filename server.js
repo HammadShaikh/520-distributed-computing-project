@@ -138,8 +138,9 @@ app.get('/problem/:probId', function (req, res) {
        if (!task) {
            return res.send(`<h1>Problem Not Found</h1>`);
        } else {
+           let name = task.problemType;
            if (task.status === 'complete') {
-               res.send(`<h1>Monte Carlo Solution: ${task.mcSolution}</h1><h4>Time Allotted: ${task.endTime - task.startTime} milliseconds</h4>`);
+               res.send(`<h1>${task.problemType} Solution: ${(name === 'Monte Carlo' ? task.mcSolution : task.msSolution}</h1><h4>Time Allotted: ${task.endTime - task.startTime} milliseconds</h4>`);
            } else if (task.status === 'in progress') {
                res.send(`<h1>Waiting on ${task.nodes} node(s) to return results. Please refresh the page in a moment.</h1>`);
            } else {
@@ -246,7 +247,7 @@ wsServer.on('request', function(request) {
                         if(err) {return console.log('error updating', err);}
 
                         if (doc.nodes === 0) {
-                            let finalArray = doc.msSolution;
+                            let finalArray = doc.msSolution.sort();
                             console.log('final sorted array: ', finalArray);
                             Task.updateOne({_id: doc._id}, {msSolution: finalArray, status: 'complete', endTime: new Date().getTime()}, (err, doc) => {});
                         }
