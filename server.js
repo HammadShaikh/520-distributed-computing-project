@@ -325,7 +325,7 @@ function delegate() {
                             });
                             json = {
                                 problem: "Merge Sort",
-                                data: arrayOfPartitions[i]
+                                data: arrayOfPartitions[i].toString()
                             };
 
                         }
