@@ -300,7 +300,7 @@ function delegate() {
                                 arrayOfPartitions[i] = arr.slice(startIndex, endIndex);
                                 startIndex = endIndex;
                                 endIndex += partitionSize;
-                                console.log('partition: ', arrayOfPartitions[i]);
+                                console.log('partition: ', arr.slice(startIndex, endIndex));
                             }
                         }
                     }
