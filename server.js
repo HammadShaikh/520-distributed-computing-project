@@ -247,7 +247,7 @@ wsServer.on('request', function(request) {
                         if(err) {return console.log('error updating', err);}
 
                         if (doc.nodes === 0) {
-                            let finalArray = doc.msSolution.sort();
+                            let finalArray = new Array(doc.msSolution).sort((a, b) => {return a-b;});
                             console.log('final sorted array: ', finalArray);
                             Task.updateOne({_id: doc._id}, {msSolution: finalArray, status: 'complete', endTime: new Date().getTime()}, (err, doc) => {});
                         }
