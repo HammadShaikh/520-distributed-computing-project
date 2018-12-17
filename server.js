@@ -280,6 +280,7 @@ function delegate() {
                     let partition;
                     let json;
                     let arrayOfPartitions = [[], []]; //Used to store partitions of merge sort, size depends on # of clients available
+
                     if (tasks[0].problemType === 'Monte Carlo') {
                         let points = Number(tasks[0].data);
                         partition = (clnts.length === 1 ? points : Math.floor(points/clnts.length));
@@ -299,13 +300,7 @@ function delegate() {
                                 startIndex = endIndex;
                                 endIndex += partitionSize;
                             }
-                        } else {
-
                         }
-                        json = {
-                          problem: 'Merge Sort',
-                          data: tasks[0].data
-                        };
                     }
 
                     Task.updateOne({_id: tasks[0]._id}, {status: 'in progress', nodes: clnts.length, startTime: new Date().getTime()}, (err, raw) => {
@@ -326,7 +321,10 @@ function delegate() {
 
                                 }
                             });
-                            json.data = arrayOfPartitions[i].toString();
+                            json = {
+                                problem: "Merge Sort",
+                                data: arrayOfPartitions[i].toString();
+                            };
 
                         }
                         clients[clnts[i].listIndex].send(JSON.stringify(json));
