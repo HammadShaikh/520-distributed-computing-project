@@ -293,7 +293,7 @@ function delegate() {
                         let arr = tasks[0].data.split(",").map((val) => {return Number(val);});
                         console.log('partitioning ', arr);
                         if (tasks[0].dataSize % 2 === 0) {
-                            let partitionSize = tasks[0].size/clnts.length;
+                            let partitionSize = tasks[0].dataSize/clnts.length;
                             let startIndex = 0;
                             let endIndex = partitionSize;
                             for (let i = 0; i < clnts.length; i++) {
