@@ -140,7 +140,7 @@ app.get('/problem/:probId', function (req, res) {
        } else {
            let name = task.problemType;
            if (task.status === 'complete') {
-               res.send(`<h1>${task.problemType} Solution: ${(name === 'Monte Carlo' ? task.mcSolution : task.msSolution}</h1><h4>Time Allotted: ${task.endTime - task.startTime} milliseconds</h4>`);
+               res.send(`<h1>${task.problemType} Solution: ${(name === 'Monte Carlo') ? task.mcSolution : task.msSolution}</h1><h4>Time Allotted: ${task.endTime - task.startTime} milliseconds</h4>`);
            } else if (task.status === 'in progress') {
                res.send(`<h1>Waiting on ${task.nodes} node(s) to return results. Please refresh the page in a moment.</h1>`);
            } else {
