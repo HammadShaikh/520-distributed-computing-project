@@ -63,6 +63,9 @@ let Task = mongoose.model('task_queue', {
     mcSolution: {
         type: Number,
         default: null
+    },
+    msSolution: {
+        type: [Number]
     }
 });
 
@@ -206,7 +209,6 @@ wsServer.on('request', function(request) {
     console.log((new Date()) + ' Connection from ' + request.remoteAddress +' accepted.');
 
 
-    //clients[index].send(JSON.stringify({type: 'monte carlo', data: '100000'}));
     connection.on('message', function(message) {
 
         if (message.utf8Data === 'AVAILABLE') {
@@ -231,18 +233,22 @@ wsServer.on('request', function(request) {
                 if (client.workingOn === 'Monte Carlo') {
                     Task.findOneAndUpdate({_id: client.probId}, {$inc: {nodes: -1, pointsGenerated: Number(message.utf8Data)}}, {new: true}, (err, doc) => {
                         if(err) {return console.log('error updating', err);}
-                        //Task.findOne({_id: client.workingOn})
 
                         if (doc.nodes === 0) {
                             let res = (4*doc.pointsGenerated)/doc.data;
-                            Task.updateOne({_id: client.probId}, {mcSolution: res, status: 'complete', endTime: new Date().getTime()}, (err, doc) => {
-
-                            });
+                            Task.updateOne({_id: client.probId}, {mcSolution: res, status: 'complete', endTime: new Date().getTime()}, (err, doc) => {});
                         }
                         console.log('after updating..\n', doc);
                     });
                 } else {
+                    let sortedArray = message.utf8Data.split(",").map((val) => {return Number(val);});
+                    Task.findOneAndUpdate({_id: client.probId}, {$inc: {nodes: -1}, $concatArrays: {msSolution: sortedArray}}, {new: true}, (err, doc) => {
+                        if(err) {return console.log('error updating', err);}
 
+                        if (doc.nodes === 0) {
+
+                        }
+                    });
                 }
 
             });
@@ -291,7 +297,7 @@ function delegate() {
                         //Merge Sort
                     } else {
                         let arr = tasks[0].data.split(",").map((val) => {return Number(val);});
-                        console.log('partitioning ', arr);
+                        console.log('Uniformly Distributing Array');
                         let partitionToEachClient = [];
 
                         //Uniformly distribute array to each client
@@ -307,37 +313,16 @@ function delegate() {
                             arrayOfPartitions[k] = arr.slice(startIndex, endIndex);
                             startIndex = endIndex;
                         }
-                        // if (tasks[0].dataSize % 2 === 0) {
-                        //     let partitionSize = tasks[0].dataSize/clnts.length;
-                        //     let startIndex = 0;
-                        //     let endIndex = partitionSize;
-                        //     for (let i = 0; i < clnts.length; i++) {
-                        //         arrayOfPartitions[i] = arr.slice(startIndex, endIndex);
-                        //         startIndex = endIndex;
-                        //         endIndex += partitionSize;
-                        //         console.log('partition: ', arr.slice(startIndex, endIndex));
-                        //     }
-                        // }
                     }
 
-                    Task.updateOne({_id: tasks[0]._id}, {status: 'in progress', nodes: clnts.length, startTime: new Date().getTime()}, (err, raw) => {
-                        if(err) {}
-                    });
+                    Task.updateOne({_id: tasks[0]._id}, {status: 'in progress', nodes: clnts.length, startTime: new Date().getTime()}, (err, raw) => {});
                     for (let i = 0; i < clnts.length; i++) {
                         if (tasks[0].problemType === 'Monte Carlo') {
                             console.log(`Sending ${partition} points to ${clnts[i].ipAddress}`);
-                            Client.updateOne({ipAddress: clnts[i].ipAddress}, {workingOn : 'Monte Carlo', status: 'unavailable', probId: tasks[0]._id}, (err, doc) => {
-                                if (err) {
-
-                                }
-                            });
+                            Client.updateOne({ipAddress: clnts[i].ipAddress}, {workingOn : 'Monte Carlo', status: 'unavailable', probId: tasks[0]._id}, (err, doc) => {});
                         } else {
-                            console.log(`Sending array partition to ${clnts[i].ipAddress}`);
-                            Client.updateOne({ipAddress: clnts[i].ipAddress}, {workingOn : 'Merge Sort', status: 'unavailable', probId: tasks[0]._id}, (err, doc) => {
-                                if (err) {
-
-                                }
-                            });
+                            console.log(`Sending an array partition to ${clnts[i].ipAddress}`);
+                            Client.updateOne({ipAddress: clnts[i].ipAddress}, {workingOn : 'Merge Sort', status: 'unavailable', probId: tasks[0]._id}, (err, doc) => {});
                             json = {
                                 problem: "Merge Sort",
                                 data: arrayOfPartitions[i].toString()
@@ -345,7 +330,7 @@ function delegate() {
 
                         }
                         clients[clnts[i].listIndex].send(JSON.stringify(json));
-                        console.log('to string ', JSON.stringify(json));
+                        //console.log('to string ', JSON.stringify(json));
                     }
 
                 }
