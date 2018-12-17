@@ -107,13 +107,13 @@ app.post('/problem', function (req, res) {
         input = req.body.numberOfPoints.toString();
         console.log(input);
     }
-    //console.log('creating task');
+
     let newTask = new Task({
         problemType: prob,
         data: input,
         dataSize: (prob === 'Merge Sort' ? size : null)    //If merge sort, then store size of array, otherwise its useless
     });
-    //console.log('saving task');
+
     newTask.save().then((document) => {
         console.log('Task added to queue', document);
 
@@ -327,8 +327,10 @@ function delegate() {
                                 }
                             });
                             json.data = arrayOfPartitions[i].toString();
+
                         }
                         clients[clnts[i].listIndex].send(JSON.stringify(json));
+                        console.log('sending ', JSON.stringify(json));
                     }
 
                 }
