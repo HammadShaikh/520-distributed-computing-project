@@ -299,6 +299,7 @@ function delegate() {
                                 arrayOfPartitions[i] = arr.slice(startIndex, endIndex);
                                 startIndex = endIndex;
                                 endIndex += partitionSize;
+                                console.log(arrayOfPartitions[i]);
                             }
                         }
                     }
@@ -328,7 +329,7 @@ function delegate() {
 
                         }
                         clients[clnts[i].listIndex].send(JSON.stringify(json));
-                        console.log('to string ', arrayOfPartitions[i].toString());
+                        console.log('to string ', JSON.stringify(json));
                     }
 
                 }
