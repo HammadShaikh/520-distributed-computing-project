@@ -291,6 +291,7 @@ function delegate() {
                         //Merge Sort
                     } else {
                         let arr = tasks[0].data.split(",").map((val) => {return Number(val);});
+                        console.log('partitioning ', arr);
                         if (tasks[0].size % 2 == 0) {
                             let partitionSize = tasks[0].size/clnts.length;
                             let startIndex = 0;
@@ -299,7 +300,7 @@ function delegate() {
                                 arrayOfPartitions[i] = arr.slice(startIndex, endIndex);
                                 startIndex = endIndex;
                                 endIndex += partitionSize;
-                                console.log(arrayOfPartitions[i]);
+                                console.log('partition: ', arrayOfPartitions[i]);
                             }
                         }
                     }
