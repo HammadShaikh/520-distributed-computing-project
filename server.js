@@ -274,7 +274,7 @@ wsServer.on('request', function(request) {
 
     connection.on('close', function(reasonCode, description) {
 
-        //When client disconnects, update its info in the DB
+        //When client disconnects, If it was working on a task, set the task to incomplete and save the
         Client.findOne({ipAddress: request.remoteAddress}, (err, client) => {
            if (err) {return console.log(`Client ${request.remoteAddress} disconnected, could not locate record in Database.`);}
            console.log('ondisconnect: ', client.workingOn);
@@ -284,7 +284,7 @@ wsServer.on('request', function(request) {
                         console.log('Task reset to incomplete');
                         let partitionlft = task.partitionLeft+client.dataDistributed;
                         Task.updateOne({_id: client.probId}, {$inc: {nodes: -1}, partitionleft: partitionlft, status: "incomplete"}, (err, doc) => {
-
+                            console.log('partitionLeft updated');
                         });
                     }
                 });
@@ -316,7 +316,7 @@ function delegate() {
 
                     //If task happens to be Monte Carlo, figure out the partitions and build JSON Object
                     if (tasks[0].problemType === 'Monte Carlo') {
-                        let points = Number((tasks[0].partitionLeft === "") ? tasks[0].data : tasks[0].partitionLeft);
+                        let points = Number((tasks[0].partitionLeft !== "") ? tasks[0].partitionLeft : tasks[0].data);
                         console.log('points: ', points);
                         partition = (clnts.length === 1 ? points : Math.floor(points/clnts.length));
                         json = {
@@ -326,7 +326,7 @@ function delegate() {
 
                     } else {
                         //Convert string of numbers into an array of numbers
-                        let arr = ((tasks[0].partitionLeft === "") ? tasks[0].data : tasks[0].partitionLeft).split(",").map((val) => {return Number(val);});
+                        let arr = ((tasks[0].partitionLeft !== "") ? tasks[0].partitionLeft : tasks[0].data).split(",").map((val) => {return Number(val);});
                         console.log('array: ', arr);
                         console.log('Uniformly Distributing Array...');
                         let partitionToEachClient = [];
