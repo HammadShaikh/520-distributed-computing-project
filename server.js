@@ -345,10 +345,10 @@ function delegate() {
                             endIndex += partitionToEachClient[k];
                             arrayOfPartitions[k] = arr.slice(startIndex, endIndex);
                             startIndex = endIndex;
-                        }
+                        }g
                     }
 
-                    Task.updateOne({_id: tasks[0]._id}, {status: 'in progress', nodes: clnts.length, startTime: new Date().getTime(), partitionLeft: ""}, (err, raw) => {});
+                    Task.updateOne({_id: tasks[0]._id}, {status: 'in progress', $inc: {nodes: clnts.length}, startTime: new Date().getTime(), partitionLeft: ""}, (err, raw) => {});
                     for (let i = 0; i < clnts.length; i++) {
                         if (tasks[0].problemType === 'Monte Carlo') {
                             console.log(`Sending ${partition} points to ${clnts[i].ipAddress}`);
