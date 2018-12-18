@@ -282,7 +282,7 @@ wsServer.on('request', function(request) {
                 Task.findOne({_id: client.probId}, (err, task) => {
                     if (!err) {
 
-                        let partitionlft = (task.partitionLeft !== "" ? Number(task.partitionLeft) + Number(client.dataDistributed) : task.partitionLeft + task.partitionLeft)g;
+                        let partitionlft = (task.partitionLeft !== "" ? Number(task.partitionLeft) + Number(client.dataDistributed) : task.partitionLeft + task.partitionLeft);
                         console.log('Task reset to incomplete, partitionLeft: ', partitionlft);
                         Task.updateOne({_id: task._id}, { partitionLeft: partitionlft, status: "incomplete", nodes: 0}, (err, doc) => {
                             if (err) {console.log('error on disconnect');}
