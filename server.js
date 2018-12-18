@@ -282,7 +282,7 @@ wsServer.on('request', function(request) {
                 Task.findOne({_id: client.probId}, (err, task) => {
                     if (!err) {
                         console.log('Task reset to incomplete');
-                        let partitionlft = task.partitionLeft+client.dataDistributed;
+                        let partitionlft = task.partitionLeft+ client.dataDistributed;
                         Task.updateOne({_id: client.probId}, {$inc: {nodes: -1}, partitionleft: partitionlft, status: "incomplete", nodes: 0}, (err, doc) => {
                             console.log('partitionLeft updated');
                         });
