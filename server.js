@@ -243,7 +243,7 @@ wsServer.on('request', function(request) {
                     Task.findOneAndUpdate({_id: client.probId}, {$inc: {nodes: -1, pointsGenerated: Number(message.utf8Data)}}, {new: true}, (err, doc) => {
                         if(err) {return console.log('error updating', err);}
 
-                        if (doc.nodes === 0) {
+                        if (doc.nodes === 0 && doc.partitionLeft === "") {
                             let res = (4*doc.pointsGenerated)/doc.data;
                             Task.updateOne({_id: client.probId}, {mcSolution: res, status: 'complete', endTime: new Date().getTime()}, (err, doc) => {});
                         }
