@@ -281,8 +281,9 @@ wsServer.on('request', function(request) {
            if (client.workingOn === 'Monte Carlo' || client.workingOn === 'Merge Sort') {
                 Task.findOne({_id: client.probId}, (err, task) => {
                     if (!err) {
-                        console.log('Task reset to incomplete');
-                        let partitionlft = task.partitionLeft+ client.dataDistributed;
+
+                        let partitionlft = task.partitionLeft + client.dataDistributed;
+                        console.log('Task reset to incomplete, partitionLeft: ', partitionlft);
                         Task.updateOne({_id: client.probId}, {$inc: {nodes: -1}, partitionleft: partitionlft, status: "incomplete", nodes: 0}, (err, doc) => {
                             console.log('partitionLeft updated');
                         });
@@ -290,7 +291,7 @@ wsServer.on('request', function(request) {
                 });
            }
         });
-        Client.updateOne({ipAddress: request.remoteAddress}, {status : 'unavailable', connection : 'disconnected'}, (err, raw) => {
+        Client.updateOne({ipAddress: request.remoteAddress}, {status : 'unavailable', connection : 'disconnected', workingOn: "", dataDistributed: "", probId: ""}, (err, raw) => {
             if (err) {return console.log(`Client ${request.remoteAddress} disconnected, could not locate record in Database.`);}
         });
         console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
