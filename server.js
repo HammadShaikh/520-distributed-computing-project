@@ -284,7 +284,7 @@ wsServer.on('request', function(request) {
 
                         let partitionlft = (task.partitionLeft === "" ? Number(task.partitionLeft) + Number(client.dataDistributed) : task.partitionLeft + client.dataDistributed);
                         console.log('Task reset to incomplete, partitionLeft: ', partitionlft);
-                        Task.updateOne({_id: task._id}, { partitionLeft: partitionlft, status: 'incomplete', $set : {nodes: 0}}, (err, doc) => {
+                        Task.updateOne({_id: task._id}, { partitionLeft: partitionlft, status: 'incomplete', $inc : {nodes: -1}}, (err, doc) => {
                             if (err) {console.log('error on disconnect');}
                             console.log('partitionLeft updated, ', doc.status);
                         });
@@ -345,7 +345,7 @@ function delegate() {
                             endIndex += partitionToEachClient[k];
                             arrayOfPartitions[k] = arr.slice(startIndex, endIndex);
                             startIndex = endIndex;
-                        }g
+                        }
                     }
 
                     Task.updateOne({_id: tasks[0]._id}, {status: 'in progress', $inc: {nodes: clnts.length}, startTime: new Date().getTime(), partitionLeft: ""}, (err, raw) => {});
