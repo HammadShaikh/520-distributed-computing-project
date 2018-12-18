@@ -248,7 +248,7 @@ wsServer.on('request', function(request) {
 
                         if (doc.nodes === 0) {
                             let finalArray = doc.msSolution.sort((a, b) => {return a-b;});
-                            console.log('final sorted array: ', finalArray);
+                            //console.log('final sorted array: ', finalArray);
                             Task.updateOne({_id: doc._id}, {msSolution: finalArray, status: 'complete', endTime: new Date().getTime()}, (err, doc) => {});
                         }
                     });
@@ -256,7 +256,7 @@ wsServer.on('request', function(request) {
 
             });
 
-            Client.updateOne({ipAddress: request.remoteAddress}, {status : 'available'}, (err, raw) => {
+            Client.updateOne({ipAddress: request.remoteAddress}, {status : 'available', workingOn: "", probId: ""}, (err, raw) => {
                 if (err) {
 
                 }
@@ -310,7 +310,7 @@ function delegate() {
                             partitionToEachClient[j]++;
 
                         let startIndex = 0;
-                        let endIndex = 0
+                        let endIndex = 0;
                         for (let k = 0; k < clnts.length; k++) {
                             endIndex += partitionToEachClient[k];
                             arrayOfPartitions[k] = arr.slice(startIndex, endIndex);
