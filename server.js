@@ -301,7 +301,7 @@ wsServer.on('request', function(request) {
 function delegate() {
     console.log('delegating...');
     Task.find({status: 'incomplete'}).sort({_id: 1}).then((tasks) => {
-        //console.log(tasks);
+        console.log(tasks);
         //If incomplete tasks exist
         if (tasks.length) {
 
