@@ -277,7 +277,7 @@ wsServer.on('request', function(request) {
         //When client disconnects, update its info in the DB
         Client.findOne({ipAddress: request.remoteAddress}, (err, client) => {
            if (err) {return console.log(`Client ${request.remoteAddress} disconnected, could not locate record in Database.`);}
-
+           console.log('ondisconnect: ', client.workingOn);
            if (client.workingOn === 'Monte Carlo' || client.workingOn === 'Merge Sort') {
                 Task.findOne({_id: client.probId}, (err, task) => {
                     if (!err) {
